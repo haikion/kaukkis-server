@@ -1,0 +1,11 @@
+*.pro.user*
+conf.pri
+Makefile
+*.log
+# Compiled object files
+*.o
+# Generated MOC, resource and UI files
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+*.moc
