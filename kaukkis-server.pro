@@ -24,3 +24,5 @@ SOURCES += src/main.cpp \
 HEADERS += \
     src/server.h \
     src/message.h
+
+DISTFILES +=

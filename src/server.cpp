@@ -1,14 +1,13 @@
 #include "server.h"
 #include "message.h"
 #include <QKeySequence>
-#include <QMutex>
 #include <X11/keysym.h>
 
-Server::Server(QObject *parent) :
+Server::Server(QObject* parent) :
     QObject(parent),
     server_(new QTcpServer(this)),
     socket_(new QTcpSocket(this)),
-    //Finds out message size which is always the same.
+    //Finds out message size. It does not depend on message content.
     messageSize_(Message(Message::Action::KEY_PRESS, Qt::Key_0).serialize().size()),
     display_(XOpenDisplay(NULL))
 {
@@ -36,7 +35,7 @@ bool Server::listen(const unsigned port)
         qDebug() << "Server: listening port: " << port;
         return true;
     }
-    qDebug() << "Server could not start because: " + socket_->errorString();
+    qDebug() << "Server could not start because: " + server_->errorString();
     return false;
 }
 
@@ -48,6 +47,8 @@ void Server::newConnection()
         //Close previous connection.
         socket_->close();
     }
+    //Verifies that only one thread is reading the message.
+    newConnectionMutex_.lock();
     //Grab the new connection
     socket_ = server_->nextPendingConnection();
     socket_->waitForConnected();
@@ -80,6 +81,7 @@ void Server::newConnection()
                 break;
         }
     }
+    newConnectionMutex_.unlock();
 }
 
 void Server::pressKey(const unsigned keyCode)

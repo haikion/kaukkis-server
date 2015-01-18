@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include <QObject>
+#include <QMutex>
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QTcpServer>
 #include <X11/extensions/XTest.h>
@@ -24,6 +25,7 @@ private:
     QTcpSocket* socket_;
     unsigned messageSize_;
     Display* display_; //unique_ptr doesn't work.
+    QMutex newConnectionMutex_;
 
     void pressKey(const unsigned keyCode);
     void releaseKey(const unsigned keyCode);
