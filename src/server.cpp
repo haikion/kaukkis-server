@@ -5,7 +5,6 @@
 
 Server::Server(QObject* parent) :
     QObject(parent),
-    server_(new QTcpServer(this)),
     socket_(new QTcpSocket(this)),
     //Finds out message size. It does not depend on message content.
     messageSize_(Message(Message::Action::KEY_PRESS, Qt::Key_0).serialize().size()),
@@ -17,7 +16,7 @@ Server::Server(QObject* parent) :
         exit(1);
     }
     qDebug() << "Server: message size: " << messageSize_;
-    connect(server_, SIGNAL(newConnection()),
+    connect(&server_, SIGNAL(newConnection()),
             this, SLOT(newConnection()));
 
 }
@@ -30,18 +29,19 @@ Server::~Server()
 
 bool Server::listen(const unsigned port)
 {
-    if ( server_->listen(QHostAddress::Any, port) )
+    if ( server_.listen(QHostAddress::Any, port) )
     {
         qDebug() << "Server: listening port: " << port;
         return true;
     }
-    qDebug() << "Server could not start because: " + server_->errorString();
+    qDebug() << "Server could not start because: " + server_.errorString();
     return false;
 }
 
 //Called when new connection appears
 void Server::newConnection()
 {
+    qDebug() << "Server: newConnection() executed";
     if (socket_->state() != QAbstractSocket::UnconnectedState)
     {
         //Close previous connection.
@@ -49,8 +49,9 @@ void Server::newConnection()
     }
     //Verifies that only one thread is reading the message.
     newConnectionMutex_.lock();
+    delete socket_; //Delete old socket
     //Grab the new connection
-    socket_ = server_->nextPendingConnection();
+    socket_ = server_.nextPendingConnection();
     socket_->waitForConnected();
     qDebug() << "Server: new connection from" << socket_->peerAddress().toString();
 
@@ -81,6 +82,7 @@ void Server::newConnection()
                 break;
         }
     }
+    qDebug() << "Server: Client disconnected";
     newConnectionMutex_.unlock();
 }
 

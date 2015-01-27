@@ -21,7 +21,7 @@ public slots:
     void newConnection();
 
 private:
-    QTcpServer* server_;
+    QTcpServer server_;
     QTcpSocket* socket_;
     unsigned messageSize_;
     Display* display_; //unique_ptr doesn't work.
