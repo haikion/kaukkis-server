@@ -41,12 +41,6 @@ bool Server::listen(const unsigned port)
 //Called when new connection appears
 void Server::newConnection()
 {
-    qDebug() << "Server: newConnection() executed";
-    if (socket_->state() != QAbstractSocket::UnconnectedState)
-    {
-        //Close previous connection.
-        socket_->close();
-    }
     //Verifies that only one thread is reading the message.
     newConnectionMutex_.lock();
     delete socket_; //Delete old socket
