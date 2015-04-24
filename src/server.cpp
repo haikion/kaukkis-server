@@ -41,9 +41,11 @@ bool Server::listen(const unsigned port)
 //Called when new connection appears
 void Server::newConnection()
 {
+    qDebug() << "Server: newConnection() executed.";
+    socket_->disconnect(); //Exits loop
     //Verifies that only one thread is reading the message.
     newConnectionMutex_.lock();
-    delete socket_; //Delete old socket
+    delete socket_; //Remove old socket
     //Grab the new connection
     socket_ = server_.nextPendingConnection();
     socket_->waitForConnected();
